@@ -5,20 +5,36 @@ from google.oauth2 import service_account
 import json
 
 # Load credentials from Streamlit secrets (ensure this is set in your Streamlit secrets management)
-try:
-    key_dict = json.loads(st.secrets["textkey"])  # This should contain the service account credentials
-    creds = service_account.Credentials.from_service_account_info(key_dict)
-except Exception as e:
-    st.error(f"Error loading credentials: {e}")
-    st.stop()  # Stop execution if credentials can't be loaded
+#try:
+#    key_dict = json.loads(st.secrets["textkey"])  # This should contain the service account credentials
+#    creds = service_account.Credentials.from_service_account_info(key_dict)
+#except Exception as e:
+#    st.error(f"Error loading credentials: {e}")
+#    st.stop()  # Stop execution if credentials can't be loaded
+
+# Initialize Firestore client
+#try:
+#    db = firestore.Client(credentials=creds, project="PROYECTOFINALKADIE")
+#    dbNames = db.collection("name")
+#except Exception as e:
+#    st.error(f"Error initializing Firestore client: {e}")
+#    st.stop()
+
+
+# ... (rest of your code)
 
 # Initialize Firestore client
 try:
-    db = firestore.Client(credentials=creds, project="PROYECTOFINALKADIE")
+    key_dict = json.loads(st.secrets["textkey"])
+    creds = service_account.Credentials.from_service_account_info(key_dict)
+    # Specify your project explicitly
+    db = firestore.Client(credentials=creds, project="PROYECTOFINALKADIE")  
     dbNames = db.collection("name")
 except Exception as e:
     st.error(f"Error initializing Firestore client: {e}")
     st.stop()
+
+
 
 # Function to load all documents from Firestore and convert to DataFrame
 def load_firestore_data():
