@@ -38,9 +38,9 @@ else:
 ###### BUSQUEDA ############################
 def loadByName(name):
     try:
-        names_ref = dbNames.where(u'name', u'==', name)
-        names = list(names_ref.stream())  # Convert query results to a list
-        return names  # Return list of matching documents
+        # Query to search for the name
+        names_ref = dbNames.where(u'name', u'==', name).get()  # Corrected query execution
+        return names_ref  # Return list of matching documents
     except Exception as e:
         st.error(f"Error while searching for {name}: {e}")
         return []
@@ -110,3 +110,4 @@ if genre_filter:
             st.write("Please enter a genre to filter.")
 else:
     st.dataframe(names_dataframe)  # Show the full dataset if no filter is applied
+
