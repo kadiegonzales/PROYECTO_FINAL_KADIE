@@ -12,19 +12,38 @@ creds = service_account.Credentials.from_service_account_info(key_dict)
 db = firestore.Client(credentials=creds, project="PROTECTOFINALKADIE")
 dbNames = db.collection("name")
 
-# Fetch all documents from Firestore (this should be done once, before filtering)
-names_ref = list(dbNames.stream())
-names_dict = [doc.to_dict() for doc in names_ref]
-names_dataframe = pd.DataFrame(names_dict)
+# Function to load all documents from Firestore and convert to DataFrame
+def load_firestore_data():
+    try:
+        # Fetch all documents from the Firestore collection
+        names_ref = list(dbNames.stream())
+        # Convert Firestore documents to a list of dictionaries
+        names_dict = [doc.to_dict() for doc in names_ref]
+        # Convert to DataFrame for easier display in Streamlit
+        names_dataframe = pd.DataFrame(names_dict)
+        return names_dataframe
+    except Exception as e:
+        st.error(f"Error fetching data from Firestore: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame if there's an error
 
-# Display the dataframe
-st.dataframe(names_dataframe)
+# Load the Firestore data
+names_dataframe = load_firestore_data()
+
+# Display the Firestore data
+if not names_dataframe.empty:
+    st.dataframe(names_dataframe)
+else:
+    st.write("No data found in Firestore.")
 
 ###### BUSQUEDA ############################
 def loadByName(name):
-    names_ref = dbNames.where(u'name', u'==', name)
-    names = list(names_ref.stream())  # Convert query results to a list
-    return names  # Return list of matching documents
+    try:
+        names_ref = dbNames.where(u'name', u'==', name)
+        names = list(names_ref.stream())  # Convert query results to a list
+        return names  # Return list of matching documents
+    except Exception as e:
+        st.error(f"Error while searching for {name}: {e}")
+        return []
 
 st.sidebar.subheader("Buscar nombre")
 nameSearch = st.sidebar.text_input("nombre")
@@ -71,9 +90,7 @@ if st.sidebar.button("Insert into Firebase"):
         })
         st.success("Información insertada correctamente!")
         # Refresh the dataframe after insertion
-        names_ref = list(dbNames.stream())
-        names_dict = [doc.to_dict() for doc in names_ref]
-        names_dataframe = pd.DataFrame(names_dict)
+        names_dataframe = load_firestore_data()
         st.dataframe(names_dataframe)
     else:
         st.error("Por favor, llene todos los campos!")
