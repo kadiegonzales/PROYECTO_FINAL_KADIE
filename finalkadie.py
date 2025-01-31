@@ -4,15 +4,15 @@ from google.cloud import firestore
 from google.oauth2 import service_account
 import json
 
-# Load credentials from Streamlit secrets (ensure this is set in your Streamlit secrets management)
+# CARGA LAS CREDENCIALES DE DTREAMLIT
 try:
-    key_dict = json.loads(st.secrets["textkey"])  # This should contain the service account credentials
+    key_dict = json.loads(st.secrets["textkey"])  
     creds = service_account.Credentials.from_service_account_info(key_dict)
 except Exception as e:
     st.error(f"Error loading credentials: {e}")
-    st.stop()  # Stop execution if credentials can't be loaded
+    st.stop()  
 
-# Initialize Firestore client
+# iNICIALIZAR CLIENTE DE FIRESTORE
 try:
     db = firestore.Client(credentials=creds, project="PROYECTOFINALKADIE")
     dbNames = db.collection("name")
@@ -21,34 +21,32 @@ except Exception as e:
     st.stop()
 
 
-
-
-# Function to load all documents from Firestore and convert to DataFrame
+# CARGA LOS DOCUMENTOS DE FIRESTORE Y LOS CONVIENTE A UN DTAFRAME
 def load_firestore_data():
     try:
-        # Fetch all documents from the Firestore collection
+        
         names_ref = list(dbNames.stream())
-        # Convert Firestore documents to a list of dictionaries
+       
         names_dict = [doc.to_dict() for doc in names_ref]
-        # Convert to DataFrame for easier display in Streamlit
+        
         names_dataframe = pd.DataFrame(names_dict)
         return names_dataframe
     except Exception as e:
         st.error(f"Error fetching data from Firestore: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame if there's an error
+        return pd.DataFrame()  
 
-# Load the Firestore data
+# CARGA LA DATA DE FIRESTORE
 names_dataframe = load_firestore_data()
 
 ###### BUSQUEDA ############################
 def loadByName(name):
     try:
-        # Query to search for the name
+        # QUERY PARA BUSCAR NOMBRE
         names_ref = dbNames.where(u'name', u'==', name).stream()
-        # Return the first matching document
+        # RETORNA MATCH
         for myname in names_ref:
             return myname
-        return None  # Return None if no matching name is found
+        return None  # NADA SI NO ENCUENTRA
     except Exception as e:
         st.error(f"Error while searching for {name}: {e}")
         return None
@@ -86,8 +84,8 @@ name = st.sidebar.text_input("Name")
 
 if st.sidebar.button("Insert into Firebase"):
     if company and director and genre and name:
-        # Reference to the Firestore collection
-        doc_ref = dbNames.document()  # Firestore will auto-generate a document ID
+       
+        doc_ref = dbNames.document()  
         doc_ref.set({
             "company": company,
             "director": director,
@@ -95,7 +93,7 @@ if st.sidebar.button("Insert into Firebase"):
             "name": name
         })
         st.success("Información insertada correctamente!")
-        # Refresh the dataframe after insertion
+        
         names_dataframe = load_firestore_data()
         st.dataframe(names_dataframe)
     else:
@@ -115,4 +113,4 @@ if genre_filter:
         else:
             st.write("Please enter a genre to filter.")
 else:
-    st.dataframe(names_dataframe)  # Show the full dataset if no filter is applie
+    st.dataframe(names_dataframe)  
