@@ -9,7 +9,7 @@ key_dict = json.loads(st.secrets["textkey"])
 creds = service_account.Credentials.from_service_account_info(key_dict)
 
 # Initialize Firestore client
-db = firestore.Client(credentials=creds, project="PROTECTOFINALKADIE")
+db = firestore.Client(credentials=creds, project="PROYECTOFINALKADIE")
 dbNames = db.collection("name")
 
 # Function to load all documents from Firestore and convert to DataFrame
